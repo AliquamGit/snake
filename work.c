@@ -4,6 +4,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <curses.h>
 
 #include "list.h"
 
@@ -119,15 +120,15 @@ void show()
 				printf(" ");
 			}
 		}
-		printf("\n");
+		printf("\r\n");
 	}
-	printf("\n");
-	printf("scores:%d\n",scores);
+	printf("\r\n");
+	printf("scores:%d\r\n",scores);
 	fflush(stdout);
 }
 
 /* 移动 */
-void move(void)
+void _move(void)
 {
 	pthread_mutex_lock(&mutex);
 	snake_move(ps,direction);
@@ -138,14 +139,24 @@ void move(void)
 void* direction_thread(void* arg)
 {
 	int _direction=0;
+	initscr();
 
 	while(1)
 	{
+		/*
 		scanf("%*[^\n]");
 		scanf("%*c");
 		scanf("%d",&_direction);
+		*/
+		_direction=getch();
+		//printf("\033[0;31m%c\033[0m",_direction);
+		//fflush(stdout);
 		if(_direction!=UP&&_direction!=DOWN&&_direction!=LEFT&&_direction!=RIGHT)
 		{
+			if(_direction==LEFT+1)
+			{
+				break;
+			}
 			continue;
 		}
 		if((_direction==UP&&direction==DOWN)||(_direction==DOWN&&direction==UP)||(_direction==LEFT&&direction==RIGHT)||(_direction==RIGHT&&direction==LEFT))
@@ -159,6 +170,8 @@ void* direction_thread(void* arg)
 		direction=_direction;
 		pthread_mutex_unlock(&mutex);
 	}
+	endwin();
+	exit(0);
 }
 
 /* 碰撞类型 */
@@ -203,11 +216,12 @@ int main(int argc,char* argv[])
 
 	do
 	{
-		move();
+		_move();
 		coll=collfunc();
 		if(coll==CWALL||coll==CSELF)
 		{
 			printf("\033[0;31mGame Over\033[0m\n");
+			endwin();
 			exit(0);
 		}
 		else if(coll==CAPPLE)
@@ -216,8 +230,8 @@ int main(int argc,char* argv[])
 			apple_create();
 		}
 		show();
-		usleep(500000);
-		//sleep(1);
+		usleep(300000);
+		//sleep(10);
 	}while(1);
 
 	return 0;

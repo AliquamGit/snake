@@ -20,7 +20,8 @@ typedef struct
 
 
 /* 蛇移动方向 */
-enum{UP=8,DOWN=5,LEFT=4,RIGHT=6};
+enum{UP=119,DOWN=115,LEFT=97,RIGHT=100};
+//enum{UP=8,DOWN=5,LEFT=4,RIGHT=6};
 
 /* 创建蛇 */
 snake* snake_create(void);
